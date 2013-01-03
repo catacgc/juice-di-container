@@ -4,10 +4,47 @@ Juice - DI Container for older PHP version
 Why another container ?
 -----------------------
 
- This is a DI container compatible with PHP 5.2
+ - Because is compatible with PHP 5.2
+ - Because is lighter than most other container implementations (Symfony2, ZF2)
 
-Example usage
--------------
+Creating the container
+-----------------------
+
+    require 'di/src/Container.php';
+    $container = new JuiceContainer();
+
+Adding parameters
+-----------------
+
+    $container['mysql_host'] = 'localhost';
+    $container['mysql_user'] = 'username';
+    $container['mysql_pass'] = 'password';
+    $container['mysql_port'] = 3306;
+
+Adding services from callbacks
+------------------------------
+
+    $container['db'] = array('Factory', 'createDbConnection');
+
+where the factory looks like:
+
+    class Factory
+    {
+        public static function createDbConnection($container)
+        {
+            return new PDO(
+                sprintf('mysql:host=%s;dbname=%s', $container['mysql_host'], $container['mysql_dbname']),
+                $container['mysql_user'],
+                $container['mysql_pass']
+            );
+        }
+    }
+
+  * Note: all callbacks receive the container as their only argument
+
+
+Full example usage
+------------------
     
     /**
     * Configuration
@@ -28,12 +65,13 @@ Example usage
     $container['two_level_cache'] = JuiceDefinition::create('TwoLevelCache')
         ->arguments(array('@main_cache', '@slow_cache'));
 
+    $container['cache'] = '@two_level_cache';
     
     /**
     * Usage
     */
 
-    $cache = $container['two_level_cache'];
+    $cache = $container['cache'];
     
     if ($data = $cache->load('expensive_operation_id')) {
         //cache hit
