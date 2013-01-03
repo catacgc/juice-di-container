@@ -12,6 +12,14 @@ class ContainerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(3, $container['param2']);
     }
 
+    public function testsContainerParametersWithCallableName()
+    {
+        $container = new JuiceContainer();
+        $container['param'] = new JuiceParam('strpos');
+
+        $this->assertEquals('strpos', $container['param']);
+    }
+
     public function testContainerServiceFromCallable()
     {
         $container = new JuiceContainer();
@@ -26,6 +34,21 @@ class ContainerTest extends PHPUnit_Framework_TestCase
         return $container;
     }
 
+    public function testInfiniteRecursion()
+    {
+        $container = new JuiceContainer();
+        $container['sum1'] = JuiceDefinition::create('SumTestService')->call('sum', array('@sum2'));
+        $container['sum2'] = JuiceDefinition::create('SumTestService')->call('sum', array('@sum3'));
+        $container['sum3'] = JuiceDefinition::create('SumTestService')->call('sum', array('@sum1'));
+
+        try {
+            $service = $container['sum1'];
+            $this->fail('Exception not thrown');
+        } catch (InvalidArgumentException $ex) {
+            $this->assertEquals('Circular dependency found: sum1 -> sum2 -> sum3 -> sum1', $ex->getMessage());
+        }
+    }
+
     /**
      * @depends testContainerServiceFromCallable
      */
@@ -34,6 +57,16 @@ class ContainerTest extends PHPUnit_Framework_TestCase
         $container['service']->add();
 
         $this->assertEquals(4, $container['service']->result);
+    }
+
+    /**
+     * @depends testContainerServiceFromCallable
+     */
+    public function testContainerAliases($container)
+    {
+        $container['service_alias'] = '@service';
+
+        $this->assertEquals($container['service_alias'], $container['service']);
     }
 
     public function testContainerServiceFromDefinition()
