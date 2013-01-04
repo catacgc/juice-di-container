@@ -4,8 +4,8 @@ Juice - DI Container for older PHP version
 Why another container ?
 -----------------------
 
- - Because is compatible with PHP 5.2
- - Because is lighter than most other container implementations (Symfony2, ZF2)
+ - Because it is compatible with PHP 5.2
+ - Because it is lighter than most other container implementations (Symfony2, ZF2)
 
 Creating the container
 -----------------------
