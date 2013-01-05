@@ -1,9 +1,9 @@
 {
-    "name": "catacgc/juice",
+    "name": "catacgc/juice-di-container",
     "type": "library",
     "description": "Small, fast, feature rich Dependency Injection for PHP 5.2",
     "keywords": ["di", "ioc", "dependency", "injection"],
-    "homepage": "http://github.com/catacgc/juice",
+    "homepage": "http://github.com/catacgc/juice-di-container",
     "license": "MIT",
     "authors": [
         {
