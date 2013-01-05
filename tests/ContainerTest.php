@@ -64,6 +64,7 @@ class ContainerTest extends PHPUnit_Framework_TestCase
      */
     public function testContainerAliases($container)
     {
+        $container->unlock();
         $container['service_alias'] = '@service';
 
         $this->assertEquals($container['service_alias'], $container['service']);
@@ -136,6 +137,17 @@ class ContainerTest extends PHPUnit_Framework_TestCase
         $service = $container->build($def);
 
         $this->assertEquals(3, $service->result);
+    }
+
+    public function testLocking()
+    {
+        $container = new JuiceContainer(array('param' => 1));
+        $value = $container['param'];
+
+        try {
+            $container['param'] = 2;
+            $this->fail('Not thrown');
+        } catch (BadMethodCallException $ex) {}
     }
 }
 

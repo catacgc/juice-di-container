@@ -28,6 +28,7 @@ class JuiceContainer implements ArrayAccess
     private $definitions = array();
     private $aliases = array();
     private $resolving = array();
+    private $locked = false;
 
     /**
      * Parameters can be passed to the constructor
@@ -44,6 +45,10 @@ class JuiceContainer implements ArrayAccess
      */
     public function offsetSet($id, $value)
     {
+        if ($this->locked) {
+            throw new BadMethodCallException('Setting values into a locked container is not allowed');
+        }
+
         if ($value instanceof JuiceParam) {
             $this->values[$id] = $value->value;
             return;
@@ -73,6 +78,8 @@ class JuiceContainer implements ArrayAccess
      */
     public function offsetGet($id)
     {
+        $this->lock();
+
         if (!empty($this->resolving[$id])) {
             $chain = implode(' -> ', array_keys($this->resolving));
             throw new InvalidArgumentException("Circular dependency found: $chain -> $id");
@@ -208,6 +215,22 @@ class JuiceContainer implements ArrayAccess
 
         return $value;
     }
+
+    /**
+     * After you are done with the container configuration make sure to lock it to enforce stable behaviour
+     */
+    protected function lock()
+    {
+        $this->locked = true;
+    }
+
+    /**
+     * Useful for testing purposes
+     */
+    public function unlock()
+    {
+        $this->locked = false;
+    }
 }
 
 /**
@@ -260,7 +283,7 @@ class JuiceDefinition
 
     public function tag($name, $attributes = array())
     {
-        $this->tags[$name] = $attributes;
+        $this->tags[] = array($name, $attributes);
 
         return $this;
     }
