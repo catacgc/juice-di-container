@@ -22,7 +22,7 @@ For PHP 5.2 you can use curl / wget / git to download that file and simple requi
 For PHP 5.3 on, you can use composer:
 
     {
-        "catacgc/juice": "1.0"
+        "catacgc/juice-di-container": "1.0"
     }
 
 After cloning the repo, you can run the tests with phpunit:
